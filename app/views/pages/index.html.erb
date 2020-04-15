@@ -1,0 +1,15 @@
+
+<%  name = "Joe" %>
+
+<% if @age >= 18 %>
+    <%= "You may drink" %>
+<% else %>
+    <%= "you can't drink"%>
+<% end %>
+
+
+<ul>
+<% for name in @names %>
+    <li><%= name %></li>
+<% end %>
+</ul>

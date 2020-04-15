@@ -2,64 +2,59 @@ class BooksController < ApplicationController
     skip_before_action :verify_authenticity_token
     before_action :setup_data
     
-    def index
-        render json: @data
-    end
-    
     #Show a single book
     def show
-        book_info = {}
-        for book in @data
-            if book[:id] == params[:id]
-                book_info = book
+        for book in session[:book_data]
+            if book["id"] == params[:id]
+                render json: book
             end
         end
-        render json: book_info
+    end
+
+    def index
+        render json: session[:book_data]
     end
     
     #Create a new book
     def create
         title = params[:title]
         author = params[:author]
-        id = (@data[-1][:id].to_i + 1).to_s
+        id = session[:book_data][-1]["id"] + 1
         new_book = {id: id, title: title, author: author}
-        @data.push(new_book)
-        render json: @data
+        session[:book_data].push(new_book)
+        render json: session[:book_data]
     end
     
     #Update a book
     def update
-        new_title = params[:new_title]
-        new_author = params[:new_author]
+        title = params[:title]
+        author = params[:author]
 
-        for book in @data
-            if book[:id] == params[:id]
-                if new_title
-                    book[:title] = new_title
+        for book in session[:book_data]
+            if book["id"] == params[:id]
+                if title
+                    book[:title] = title
                 end
-                if new_author
-                    book[:author] = new_author
+                if author
+                    book[:author] = author
                 end
             end
         end
-        render json: @data
+        render json: book
     end
     
     #Remove a book
     def destroy
-        for book in @data
-            if book[:id] == params[:id]
-                @data.delete(book)
-            end
-        end
-        render json: @data
+        session[:book_data] = session[:book_data].select {|book| book["id"] != params[:id]} 
+        render json: session[:book_data]
     end
     
     private
     def setup_data
-        @data = [
-            { id: "1", title: "Harry Potter", author: "J.K Rowling" },
-            { id: "2", title: "Name of the wind", author: "Patrick Rothfuss" }
-        ]
+        session[:book_data] = [
+            { id: 1, title: "Harry Potter", author: "J.K Rowling" },
+            { id: 2, title: "Name of the wind", author: "Patrick Rothfuss" }
+        ] unless session[:book_data]
+
     end
 end
